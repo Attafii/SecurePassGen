@@ -15,19 +15,19 @@ SecurePassGen is a simple password generator application built using Python and 
 
 1. Clone the repository
   ```shell
-  git clone https://github.com/your-username/SecurePassGen.git
+  git clone https://github.com/your-username/SecurePassGen.git  ```
 
 2. Navigate to the project directory:
   ```shell
-  cd SecurePassGen
+  cd SecurePassGen  ```
 
 3. Install the required dependencies:
   ```shell
-  pip install -r requirements.txt
+  pip install -r requirements.txt  ```
 
 4. Run the application:
   ```shell 
-  python securepassgen.py
+  python securepassgen.py  ```
 
 
 ## Creating an Executable
@@ -36,17 +36,18 @@ To create an executable for your app, you can use PyInstaller. Follow these step
 
 1. Install PyInstaller by running the following command: 
   ```shell
-  pip install pyinstaller
+  pip install pyinstaller  ```
 
 2. Navigate to the directory where your Python program is located.
 
 3. Use the following command to create a single-file executable:
   ```shell
-  pyinstaller --onefile app.py
+  pyinstaller --onefile app.py  ```
 
 
-Alternatively, if you have a setup script, you can use the following command:         ```shell
-  python setup.py build 
+Alternatively, if you have a setup script, you can use the following command:         
+  ```shell
+  python setup.py build  ```
 
 
 4. The executable file will be generated in the `dist` directory.

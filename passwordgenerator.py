@@ -1,10 +1,45 @@
 from tkinter import messagebox, ttk
 from tkinter import *
 from random import choice, shuffle
+import threading
 
 tk = Tk()
 tk.title('Password Generator')
 tk.geometry("700x600")
+
+# Password History List
+password_history = []
+
+# Function to add password to history and limit history size
+def add_to_history(password):
+    password_history.append(password)
+    if len(password_history) > 10:  # Limit to last 10 passwords
+        password_history.pop(0)
+
+# Function to view password history
+def view_history():
+    history_window = Toplevel(tk)
+    history_window.title("Password History")
+    history_window.geometry("400x300")
+    Label(history_window, text="Password History:", font=("Poppins", 14)).pack(pady=10)
+    for pw in password_history:
+        Label(history_window, text=pw, font=("Poppins", 12)).pack(anchor='w', padx=10)
+
+# Function to clear clipboard after a set time
+def auto_clear_clipboard(delay=30):
+    def clear_clipboard():
+        tk.clipboard_clear()
+        messagebox.showinfo("Clipboard Cleared", "Clipboard has been automatically cleared for security.")
+    timer = threading.Timer(delay, clear_clipboard)
+    timer.start()
+
+# Function to expire password after a set time
+def auto_expire_password(delay=60):
+    def expire_password():
+        pw_label.config(text="")
+        messagebox.showinfo("Password Expired", "The generated password has expired and is now cleared.")
+    timer = threading.Timer(delay, expire_password)
+    timer.start()
 
 # Evaluate password strength and update the progress bar
 def evaluate_strength(password):
@@ -19,7 +54,6 @@ def evaluate_strength(password):
     strength_score = sum(criteria) + (length >= 10) + (length >= 15)
 
     # Calculate strength percentage
-    # Adjusting percentage to ensure minimum of 10
     strength_percentage = max(min(strength_score * 10, 100), 10)
     
     # Update the progress bar value
@@ -38,9 +72,6 @@ def evaluate_strength(password):
 
 # Generate Random Strong Password
 def new_rand():
-    # Clear Our Entry Box
-    pw_entry.delete(0, END)
-    
     try:
         # Get PW Length and convert to integer
         pw_length = int(my_entry.get())
@@ -77,11 +108,18 @@ def new_rand():
         shuffle(my_password)
         my_password = ''.join(my_password[:pw_length])
 
-        # Output password to the screen
-        pw_entry.insert(0, my_password)
+        # Output password to the label (non-editable)
+        pw_label.config(text=my_password)
         
         # Evaluate password strength
         evaluate_strength(my_password)
+
+        # Add password to history
+        add_to_history(my_password)
+
+        # Start auto-expire password timer
+        auto_expire_password()
+
     except ValueError as e:
         messagebox.showerror("Error", str(e))
 
@@ -90,8 +128,11 @@ def clipper():
     # Clear the clipboard
     tk.clipboard_clear()
     # Copy to clipboard
-    tk.clipboard_append(pw_entry.get())
+    tk.clipboard_append(pw_label.cget("text"))
     messagebox.showinfo("Success", "Text copied to clipboard!")
+    
+    # Start auto-clear clipboard timer
+    auto_clear_clipboard()
 
 # Label Frame
 lf = LabelFrame(tk, text="How Many Characters?")
@@ -116,9 +157,9 @@ Checkbutton(cf, text="Lowercase Letters (a-z)", variable=var_lowercase).pack(anc
 Checkbutton(cf, text="Numbers (0-9)", variable=var_numbers).pack(anchor='w')
 Checkbutton(cf, text="Special Characters (!@#$%^&*)", variable=var_special).pack(anchor='w')
 
-# Create Entry Box For Our Returned Password
-pw_entry = Entry(tk, text='', font=("Poppins", 24), bd=0, bg="systembuttonface")
-pw_entry.pack(pady=20)
+# Label For Displaying the Generated Password (Non-Editable)
+pw_label = Label(tk, text='', font=("Poppins", 24), bd=0, bg="systembuttonface")
+pw_label.pack(pady=20)
 
 # Strength Indicator Progress Bar
 strength_progress_style = ttk.Style()
@@ -141,5 +182,7 @@ button = Button(my_frame, text="Generate Password", command=new_rand, bg='#66347
 button.grid(row=0, column=0, padx=5, pady=5)
 button = Button(my_frame, text="Copy To Clipboard", command=clipper, bg='#ffffff', fg='#66347F', activebackground="#ffffff", font=("Poppins", 14))
 button.grid(row=0, column=1, padx=10, pady=10)
+history_button = Button(my_frame, text="View Password History", command=view_history, bg='#66347F', fg='#ffffff', font=("Poppins", 14))
+history_button.grid(row=1, column=0, columnspan=2, pady=10)
 
 tk.mainloop()
